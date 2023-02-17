@@ -86,7 +86,6 @@ exports.deleteItemFromCart = async (req, res, next) => {
 
   const product = await Product.findById(productId);
   if (!product) throw new NotFoundError("Cannot find product");
-  //const items = cart.items;
 
   const productToDelete = {
     productId: productId,
@@ -99,7 +98,7 @@ exports.deleteItemFromCart = async (req, res, next) => {
   const foundItem = cart.items.find((prod) => prod.productId == productId);
 
   if (foundItem) {
-    if (foundItem.quantity >= 1) {
+    if (foundItem.quantity > 1) {
       foundItem.quantity -= quantity;
       foundItem.price = product.price;
       foundItem.itemTotalPrice = foundItem.price * foundItem.quantity;
@@ -107,18 +106,10 @@ exports.deleteItemFromCart = async (req, res, next) => {
       cart.items.splice(productToDelete, quantity);
     }
   } else {
-    //throw new NotFoundError("Cannot find this product in cart");
-    cart.items.splice(productToDelete, quantity);
+    throw new NotFoundError("Cannot find this product in cart");
   }
 
   cart.totalSum -= productToDelete.itemTotalPrice;
-  /* if ((cart.totalSum = 0)) {
-    throw new BadRequestError("you cannot blablab");
-  }*/
-
-  // if foundItem.quantity = 0 { }
-
-  /* if cart.items.length = 0 return */
 
   const updatedCart = await cart.save();
   return res.status(201).json(updatedCart);
